@@ -1,0 +1,653 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>reveal.js</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/puzzle.css">
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+</head>
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <section><h1>Chocolatey repozitorijum</h1>
+
+                <img style='width:50%' src=images\logo.svg></img>
+
+                <h3> automatizacija zavisnosti za razvojne, produkcione i personalne sisteme</h3>
+            </section>
+
+            <section>Miodrag Milić <br/> miodrag.milic@gmail.com
+                <br/>
+                <span style='font-size:0.5em'> https://github.com/majkinetor/presentations/tree/master/sinergija</span>
+            </section>
+
+            <section>
+                <img style='float:left' src=images\automate_all_things.png></img> 
+
+                <span class='fragment' data-fragment-index='0'>vreme</span>
+                <span class='fragment' data-fragment-index='10'>&rarr; kreativnost</span> 
+                <br/>
+                <span class='fragment' data-fragment-index='30'>reprodukcija</span>
+                <span class='fragment' data-fragment-index='40'>	&rarr; garancija</span> 
+                <br/>
+                <span class='fragment' data-fragment-index='50'>	<strong>REZIJLENTNOST</strong></span> 
+                <br/>
+                <span class='fragment' data-fragment-index='60'>docs</span>
+                <span class='fragment' data-fragment-index='70'>	&rarr; onboarding </span> 
+
+            </section>
+
+            <section><h1>Šta je Chocolatey</h1>
+                <section>
+                    FOS sistem za menadžment softwera.
+                        <ul>
+                            <li class='fragment' data-fragment-index='11'>
+                                zašto ne <code>appwiz.cpl</code> <span style='font-size:50%'> (Add or Remove Programs) </span>                                ?
+                            </li>
+                            <li class='fragment' data-fragment-index='12'>OneGet, Powershell Gallery</li>
+                            <li class='fragment' data-fragment-index='13'>
+                                ... ili <code>ms-windows-store:</code>
+                            </li>
+                        </ul>
+                </section>
+                <section>
+                  Skoro svaki OS ima package repository
+                        <ul class='fragment' data-fragment-index='30'>
+                            <li> apt-get <span style='font-size:50%'> (Debian based systems)</span></li>
+                            <li> yum/dnf <span style='font-size:50%'> (Red Hat & friends)</span> </li>
+                            <li> homebrew<span style='font-size:50%'> (OS X)</span> </li>
+                            <li> pacman <span style='font-size:50%'> Arch</span>, portage <span style='font-size:50%'>Gentoo</span>,
+                                pkg <span style='font-size:50%'>Solaris</span> .... </li>
+                    </ul>
+                </section>
+
+                <aside data-markdown class="notes">
+                    - Developer and poweruser utilities and their dependencies.
+                    - APPWIZCPL: Samo je lokalne prirode i nije ponovljiv
+                    - One get je package manager agregator
+                    - STORE
+                      - U pitanju je portal
+                      - ne postoji automatizacija
+                      - ima autoupdate
+                      - Store koristi submission, certification itd. što je suviše sporo i zahteva menadžment. Ne postoji on premise.
+                    - Nijedan nema dependency resolver i druge napredne opcije
+                    - Suština je da budu open source, nemoguće drugačije.
+                    - Sta je uspesan repozitorijum: uptodate, mnogo package-ja, brzi custom packages
+                </aside>
+            </section>
+
+            <section data-transition='convex'><blockquote cite='Neal Stephenson'>In the beginning there was a command line </blockquote>
+                <img class='fragment grow' src=images\choco_install.gif></img>
+                <aside data-markdown class="notes">
+                    - Koristeći GUI učimo 2 puta da radimo istu stvar.
+                    - Shell se moze skriptovati
+                    - Powershell - znanje Posha nije limitirano, x-platform je, ekstremno mocan, objektno orijentisan, nema parsiranja teksta.
+                </aside>
+            </section>
+
+            <section  data-transition="zoom-in fade-out"> <h1>Chocolatey TLDR</h1>
+                <section>
+                       <p class='fragment zoom-in' data-fragment-index=10 data-markdown> Treba mi Firefox: `choco install firefox`</p>
+                       <p class='fragment zoom-in' data-fragment-index=15 data-markdown> ili stariji: `cinst firefox --version 46.0.1`</p>
+                       <p class='fragment zoom-in' data-fragment-index=50 data-markdown> update firefox: `cup firefox`</p>
+                       <p class='fragment zoom-in' data-fragment-index=60 data-markdown> Meh: `choco uninstall firefox`</p>
+
+                        <aside class="notes" data-markdown>
+                            - Cak i adhoc instalacija putem chocolatey-ja je bolji izbor zbog implicitnih metapodataka.
+                            - Package ne moze da nestane sa repozitorijuma
+                            - Ne zanuma me gde sta… sta imam sta mu jos treba. Samo hocu da radi.
+                            - Idealizovaana slika u ovom trenutku, zavisi od package-a
+                        </aside>
+                </section>
+                <section>
+                       <br/> 
+                       <p class='zoom-in' data-fragment-index=10> Teba mi PowerShell: <code>cinst powershell</code><br/><span style='color:red; font-size:70%'> (instalira dotnet <i>ako je potrebno</i>)</span></p>
+                       <p class='fragment zoom-in' data-fragment-index=60 data-markdown> Želim sve browsere: `cinst allbrowsers`</p>
+                       <p class='fragment zoom-in' data-fragment-index=80 data-markdown> Teba mi mnogo toga:  
+                           `cinst allbrowsers skype powershell 7zip git`
+                       </p>
+                       <p style='color:blue' class='fragment zoom-in' data-fragment-index=90 data-markdown> Outdated: `choco outdated`</p>
+                       <p style='color:red' class='fragment zoom-in' data-fragment-index=90 data-markdown> Update svega: `cup all`</p>
+                        <aside class="notes" data-markdown>
+                            - Cak i adhoc instalacija putem chocolatey-ja je bolji izbor zbog implicitnih metapodataka.
+                            - Package ne moze da nestane sa repozitorijuma
+                            - Ne zanuma me gde sta… sta imam sta mu jos treba. Samo hocu da radi.
+                            - Idealizovaana slika u ovom trenutku, zavisi od package-a
+                            - Admin shell
+                        </aside>
+                </section>
+
+            </section>
+
+            <section data-transition='zoom-in'>
+                <img src='images\wizard.jpg'/>
+            </section>
+
+            <section>
+                <h1>Kako radimo sada</h1>
+                <section> </section>
+
+                <section data-transition="zoom-in fade-out">
+                    <h2>Personalni sistem</h2>
+
+                    <ul>
+                        <li>Manualno kod svakog OS install.</li>
+                        <li>Kloniranje nije preterano zanimljivo.</li>
+                        <li>Portabilne aplikacije ne mogu lako da se update-uju.</li>
+                    </ul>
+
+                    <aside data-markdown class="notes">
+                    - IOT postaje sve više sveprisutan.
+                    </aside>
+                </section>
+
+                <section>
+                    <img style='padding-top:1.2em;' src='images/firsttime.png' > </img>
+                    <span style='font-size:0.5em'>source: <a  href='http://www.hanselman.com/blog/IsTheWindowsUserReadyForAptget.aspx' >Is the Windows User Ready For Apt-Get - Scott Hanselman</a></span>
+                    <hr />
+                    <span style='font-size:0.7em'> Moj Windows: </span>
+                    &nbsp;
+                    <a style='font-size:0.5em' href='https://gist.github.com/anonymous/76e0ecd1c8fa331a0550b8eea5e90333'> basic tools </a> 
+                    &nbsp;
+                    <a style='font-size:0.5em' href='https://gist.github.com/anonymous/93db9f2951841f64c3fc6d7d33ce22e1'> network tools</a>
+                    <br/>
+                    <code style='font-size:0.5em'>iwr https://gist.githubusercontent.com/{user}/{gist_id}/raw/choco.ps1 | iex</code>
+                </section>
+
+                <section data-transition="zoom-in fade-out">
+
+                    <br/><br/>
+                    <img style='padding-left: 3em; float:left' src='images/tim.gif' ><br/> </img> <h2>Tim</h2>
+                    <br/>
+                    <br/>
+                    <ul style='font-size:0.7em'>
+                        <li>Podrazumeva se ili postoji dokumentovano.</li>
+                        <li>Nekad se neko usudi da uradi <a href='http://stackoverflow.com/search?q=silent+install'> silent install</a>.</li>
+                        <li>Da li <i>random</i> osoba ume.</li>
+                        <li>Dinamika tima kod višegodišnjih projekata.</li>
+                        <li>Da li smo svesni tekuće situacije. <br/><span style='font-size:0.7em'>(paralelne verzije?)</span></li>
+                    </ul>
+
+                    <aside data-markdown class="notes">
+                    - Eliminiše potrebu za manuelnim instalacijama
+                      - Preko 20 installer formata
+                    - Samostalni silent install je suvise naporan
+                    - Kloniranje je uvek outdateovano, tesko za odrzavanje, sporo itd.
+                    - Dokumentacija je uvek outdatovana
+                    - Group policy ?
+                    GPO doesn't do great with reporting, and it is a bit of a generalist tool.
+                    Chocolatey is extremely specialized at software management automation.
+                    As an analogy, a regular MD isn't going to perform brain surgery.
+                    </aside>
+                </section>
+
+                <section>
+                    <img src='images/clicking.png' > </img>
+                </section>
+
+                <section>
+                    <img style='width:120%' src='images/snower.png' > </img>
+                </section>
+
+                <section>
+
+                    <img style='width:50%; float:left' src='images/hobbits.jpg'></img>
+                    <h2>Produkcija</h2>
+                    <ul style='font-size:0.6em'>
+                        <li> Manuelna okruženja. </li>
+                        <li> Reimplementacija na build serveru. </li>
+                        <li> Imutabilna infrastruktura</li>
+                    </ul>
+                    <aside data-markdown class="notes">
+                        - Devops
+                        - Jedan code vise okruzenja
+                        - U nastavku ćemo videti kako sve ovo chocolatey rešava
+                        - Skaliranje i izolacija, dont relay on system tools
+                    </aside>
+                </section>
+            </section>
+            <section data-transition='convex'>
+
+                <h1> Kako da nam bude lepo</h1>
+
+                <section>
+                    <br/>
+                    <br/>
+                    <img width=60% src='images/happy.png'></img>
+                </section>
+
+                <section>
+                    <p data-markdown>
+                    - jedan interfejs
+                    - **up to date**
+                    - stabilnost i reproduktivnost
+                    - da bude sigurno
+                    - i decentralizovano
+                    - lako za korišćenje (KISS) i ekstenzibilno
+                </p>
+                </section>
+        </section>
+
+            <section>
+                <section>
+                    <img src='images/technical.jpg'></img>
+                </section>
+
+                <section><h2><a href='https://chocolatey.org/stats' >Fakti</a> </h2>
+                    <p>
+                        <img style='float:left' src='images/stats.png'></img>
+                            <p data-markdown style='font-size:0.5em'>
+                                - maintainers: 1100
+                                - install svake sekunde
+                                - [community repo](https://chocolatey.org/packages)
+                                - moderated
+                                - virus total (50+ AV)
+                                - XP .. Windows 10
+                            </p>
+                    </p>
+                    <aside data-markdown class="notes">
+                        - Moderated, trusted users
+                        - Organizacije ne bi trbalo da koriste community
+                        - Copyright law and distribution rights
+                    </aside>
+                </section>
+
+                <section>
+                    <ul>
+                        <li>FOS NuGet kao format pakovanja <img width=48px src='images/nuget.jpg'></img>
+
+                            <ul>
+                                <li>decentralizovan</li>
+                                <li>specifikacija dependency-ja</li>
+                                <li>nema security</li>
+                            </ul>
+                        </li>
+                        <li>Fensi zip fajlovi koji imaju pristup PowerShell-u. </li>
+                        <li>Dodatna logika koja fali u instalerima.</li>
+                        <li>CLI i GUI tool <b class='fragment'>, ali ipak CLI, stvarno <img width=48px src='images/powershell.png'></img></b></li> 
+                            <b class='fragment'> ALI NE CMD.EXE <img width=64px src='images/cmdexe.jpg'></img></b>
+                    </ul>
+
+                    <aside class="notes" data-markdown>
+                        - CLI tool ima mnogo vise mogucnosti
+                        - Powershell omogucava implementaciju bilo cega
+                        - Ono sto ne moze ide kroz Autohotkey
+                    </aside>
+                </section>
+
+                <section>
+                    <h1><code>choco -h</code></h1>
+                    <pre>
+<code  style='font-size:0.8em'>* search    - searches remote or local packages (alias for list)
+* info      - retrieves package information.
+* install   - installs packages from various sources
+* pin       - suppress upgrades for a package
+* outdated  - retrieves packages that are outdated.
+* upgrade   - upgrades packages from various sources
+* uninstall - uninstalls a package
+* pack      - packages up a nuspec to a compiled nupkg
+* push      - pushes a compiled nupkg
+* new       - generates files necessary for a chocolatey package from a template
+* source    - view and configure default sources
+* feature   - view and configure choco features </code></pre>
+                    <code> choco install -h </code>
+
+                    <aside class="notes" data-markdown>
+                    </aside>
+                </section>
+
+                <section>
+                    <h2><code>choco info visualstudiocode</code></h2>
+                    <pre style='overflow: hidden; width:100%; font-size:0.5em'>
+ Title: Visual Studio Code | Published: 15.10.2016.
+ Package approved as a trusted package on okt 16 2016 01.05.23.
+ Package testing status: Passing on okt 16 2016 01.00.03.
+ Number of Downloads: 29152 | Downloads for this version: 3
+ Package url
+ Chocolatey Package Source: https://github.com/jivkok/Chocolatey-AutomaticPackages/tree/master/VisualStudioCode
+ Package Checksum: '+3oxLx45S5UHYp1+vbTLySqqQwtF8ONsIpXNPu+dhuHVwMaN6Hm5oC9+Wmwswuw2eQbWIpOpLk9XJkIJ6+x0Rw==' (SHA512)
+ Tags: Microsoft VisualStudioCode vscode editor ide javascript typescript admin
+ Software Site: https://code.visualstudio.com/
+ Software License: https://code.visualstudio.com/License
+ Software Source: https://github.com/Microsoft/vscode
+ Documentation: https://code.visualstudio.com/docs
+ Issues: https://github.com/Microsoft/vscode/issues
+ Description: Build and debug modern web and cloud applications. Code is free and available on your favorite platform - Linux, Mac OSX, and Windows.
+
+  ### Package Specifics
+  The package uses default install options except that it adds context menu entries and Visual Studio Code isn't started after installation.
+
+  #### Package Parameters
+  The following package parameters can be set:
+
+  * `/NoDesktopIcon` - Don't add a desktop icon for Visual Studio Code.
+  * `/NoQuicklaunchIcon` - Don't add an icon for Visual Studio Code to the QuickLaunch area.
+  * `/NoContextMenuFiles` - Don't add an `Open with Code` entry to the context menu for files.
+  * `/NoContextMenuFolders` - Dont't add an `Open with Code` entry to the context menu for folders.
+  * `/DontAddToPath` - Don't add Visual Studio Code to the path.
+</pre>
+
+                </section>
+
+                <section><h2><a href='https://docs.nuget.org/ndocs/create-packages/dependency-versions' >Dependencies</a></h2>
+                        <img style='width:100%; float:left' src='images/deps.jpg'></img>
+                </section>
+
+                <section>
+
+                    <h2> Privatni repozitorijumi</h2>
+                <p  data-markdown>
+                - SMB share
+                - Artifactory, Nexus
+                - ProGet, MyGet
+                </p>
+                </section>
+
+                <section><h2>Integracija</h2>
+                    <p data-markdown>
+                        - OneGet provider
+                        - Puppet Chef OctopusDeploy Ansible ...
+                        - Drugi repozitorijumi `-source`:  
+                          Ruby, WebPI, Cygwin, Python, WF
+                        - PowerShell: choco helpers & extensions
+                    </p>
+                </section>
+
+                <section><h2> <a href='http://boxstarter.org' > BoxStarter </a></h2>
+                    <p data-markdown>
+                        - `cinst boxstarter`
+                        - zna da prepozna reboot
+                        - instalira sve update-ove i konfiguriše Windows
+                        - [Gist](https://gist.github.com/olohmann/b8dee52278296db65937)
+                    </p>
+                </section>
+
+            </section>
+
+            <section><h2>Šta je pakovanje</h2>
+                <p data-markdown>
+- Metapodaci + PowerShell installer  
+  ... koji uglavnom download-uje sa interneta
+- Tipovi pakovanja
+    - install, portable (binary)
+    - virtual
+    - meta (1 od)
+- `$Env:ChocolateyInstall\bin`
+- ne postoji source repo (deb-src)
+- checksum
+</p>
+
+            <aside class="notes" data-markdown>
+                - Chocolatey is a software management tool that is also a package manager. It functions fantastically well when the software is all included in the package and it doesn't make use of native installers. However to approach the Windows ecosystem a package manager also needs to know how to manage actual software installations, thus why Chocolatey does that as well. For publicly available packages, copyright keeps from having binaries embedded in packages, so Chocolatey is able to download from distribution points and checksum those binaries.
+                - Portabilni toolovi nisu vidljivi u sistemu.
+            </aside>
+            </section>
+
+            <section>
+                <h2> Novo pakovanje</h1>
+                <p data-markdown>
+                - `choco new <ime_pakovanja>`
+                - `chocolateyInstall.ps1`
+                - auto uninstall
+                - Parametri, custom logika
+                - Primeri: [dbeaver](https://github.com/majkinetor/au-packages/blob/master/dbeaver/tools/chocolateyInstall.ps1), [less](https://github.com/majkinetor/au-packages/tree/master/less/tools), [nexus-oss](https://github.com/majkinetor/au-packages/blob/master/nexus-oss/tools/chocolateyInstall.ps1)
+                - Alati: `cinst ussf insted` 
+                - Problemi: `cinst msiinv -version 1.3`
+                - [chocolatey-test-environment](https://github.com/chocolatey/chocolatey-test-environment)
+                </p>
+
+                <aside class="notes" data-markdown>
+                    - Razlika izmedju softvera i pakovanja je sto je kasniji samo 1 verzija.
+                    - Choco new vec mnogo toga uradi
+                    - Nivo poznavanja Powershella je osnovni
+                    - Koliko je ovo tesko ? Kada napravimo jedno pakovanje ostalo je manje vise hiperproizvodnja
+                    - Push i published vs private
+                </aside>
+            </section>
+
+            <section>
+                <a href='https://chocolatey.org/docs/automatic-packages' ><h2>Automatska pakovanja</h2></a>
+                <section>
+                    <img style='padding-top:2em' src='images/bots.jpg'></img>
+
+                    <aside class="notes" data-markdown>
+                    - Automatizacija za maintere, nemoguce odrzavati veci broj pakovanja bez ovoga.
+                    - Sada se kotiristi combo od nekoliko alata koji zahtevaju manuelno podseavanje, zahteva mahinu, nije lako sherovati pakovanja.
+                    </aside>
+                </section>
+
+                <section><a href='https://github.com/majkinetor/au/blob/master/README.md'> <h3> AU module</h3></a>
+                    <code>Install-Module au</code>
+                    <code>cinst au</code>
+                    <p style='font-size:0.8em' data-markdown>
+- Koristi samo PowerShell da napravi updater
+- Automatski downloaduje sve URLove i računa checksume
+- Može da updatuje odjenom bilo koji subset package-ja
+- Plugin sistem: notifikacije, reporting, persistance ...
+- Dolazi uz spreman AppVeyor build
+                    </p>
+                </section>
+
+                <section><br/><br/><h3> AU module: <code>.\update.ps1</code></h3>
+<pre><code style='overflow:hidden; font-size:0.7em'>$releases = 'https://notepad-plus-plus.org/download'
+function global:au_GetLatest {
+     $download_page = Invoke-WebRequest -Uri $releases #1 
+     $url     = $download_page.links | ? href -match '\.exe$' | select -First 1 -expand href #2
+     $version = $url -split '-|.exe' | select -Last 1 -Skip 2 #3
+     return @{ Version = $version; URL32 = $url }
+}
+function global:au_SearchReplace {
+    @{
+        "tools\chocolateyInstall.ps1" = @{
+            "(^[$]url32\s*=\s*)('.*')"      = "`$1'$($Latest.URL32)'"           #1
+            "(^[$]checksum32\s*=\s*)('.*')" = "`$1'$($Latest.Checksum32)'"      #2
+        }
+    }
+}
+update
+</code></pre>
+                <code>PS> updateall a*</code>&nbsp; <a style='font-size:0.6em' href='https://gist.github.com/gep13/bd2eaa76f2a9ab739ca0544c502dca6e/c17b4bdbbadc16dfb901dcbde50f4fea08a4bd10' > report </a>
+            </section>
+
+            </section>
+
+            <section>
+                <section>
+                <img width=45% src='images/lies.webp'></img>
+                </section>
+
+                <section>
+                    <p data-markdown>
+                    - Custom installeri koji nemaju silent opcije
+                    - Autohotkey
+                    - Registry problemi
+                    - Nekad je teško napraviti downloader
+                    - Mrežni problemi
+                    - Ogromni installer-i
+                    </p>
+                </section>
+
+                <aside class="notes" data-markdown>
+                </aside>
+            </section>
+            <section >
+                <h1>Budućnost</h1>
+
+                <p data-markdown>
+                - Metadata: conflicts / replaces / provides
+                - NuGet 3
+                - PGP enkripcija
+                - .NET Core
+                </p>
+
+            </section>
+
+            </section>
+
+            <section>
+                <h2>nano & docker</h2>
+
+                <section>
+                    <p data-markdown>
+                        - Nano image je nekoliko stotina MB
+                        - Nano zahteva PowerShell: `NanoServerImageGenerator.psd1`
+                        - Nano ne koristi MSI subsistem već WSA
+                        - Chocolatey će podržati WSA i MSI na nano serveru
+                          - ETA: 6 meseci
+                    </p>
+
+                    <aside class="notes" data-markdown>
+                        - With Nano Server, new extensions have been added to the appx model to support what is now known
+                        as “Windows Server Applications” (aka WSAs)
+                        - MSI is built primarily for local installation, so remote installation can be problematic.
+                        - Custom actions in MSI may invoke GUI or other non-headless-friendly that are not desirable with the headless and zero-footprint nature of Nano Server.
+                        - MSI does not support offline installation, which is one of major goals for Nano Server in the long run.
+                        - Windows APPX is an installer framework designed to install and service applications safely and reliably, using a declarative manifest.
+                    </aside>
+                </section>
+
+                <section data-markdown>
+                    Skoro da ne postoji nijedan kontejner koji ne koristi `apt-get` ili drugi menadžer
+
+                    [Rails docker image](https://hub.docker.com/explore/)
+
+                    ```
+                    FROM ruby:2.3
+
+                    RUN apt-get update
+                    RUN apt-get install -y nodejs
+                    RUN apt-get install -y mysql-client postgresql-client sqlite3
+                    ENV RAILS_VERSION 5.0.0.1
+
+                    RUN gem install rails --version "$RAILS_VERSION"
+                    ```
+                </section>
+            </section>
+
+            <section>
+                <p data-markdown>
+                ## Biznis 
+
+                - Package internalizer
+                  - `choco outdated | internalize`
+                - Automatic package builder
+                - Per version CDN od Jan. 2016
+                - Sinhronizacija sa _Programs & Features_
+                - `choco new --from-installed-msis`
+                - `cuninst name* --from-programs-andfeatures`
+                - Support i prioritet za nove funkcionalnosti
+                </p>
+
+                <aside class="notes" data-markdown>
+                    - Generated 364 packages in about 7 minutes
+                    - PI krucijalan feature, omogucava potpunu kontrolu i independancy
+                    - APB za 5 - 10 sve automatski kreira, ima bazu podataka instalera i silent swiwtcheva
+                    - Verovatno ce enterprise repository da postoji u buducnosti
+                </aside>
+            </section>
+
+            <section><h1> Alternative</h1>
+                <p data-markdown>
+                    - [Npackd](https://npackd.appspot.com/)
+                    - [Zeroinstall](http://0install.net/)
+                    - [Ninite](https://ninite.com/)
+                    - [JustInstall](http://just-install.it/)
+                </p>
+                <aside data-markdown class="notes">
+                    - Npackd (najozbiljniji alat)
+                      - 1000 pakovanja open-source
+                      - Koristi isključivo XML što je problem u ekspresivnosti
+                      - Nije nuget based, proxy ?
+                      - Nije idempotentan
+                      - Nema jezik
+                    - Zero intall
+                      - Isto xml
+                      - 50ak package-ja
+                      - x-platform ali da li se koristi
+                      - Ima sync across computers,GPG security, GUI/CLI
+                    - Ninite
+                      - Komercijlan i manje od 100 pkg
+                      - Custom package ?
+                    - JustInstall
+                      - 145 package
+                      - Boosta se da ne treba Powershell dotNet itd ali choco sve to instalira u koraku (XP and friends)
+                </aside>
+            </section>
+
+            <section data-markdown>
+                # Community
+
+                - Gitter (više kanala)
+                - Google group
+                - Site
+            </section>
+
+            <section data-markdown>
+                # Users
+
+                - [Wallmart](https://puppet.com/blog/extending-chocolatey-packaging-walmart), [Facebook](https://chocolatey.org/packages/osquery), Nordstrom, D2-SI
+                - Puppet, Chef
+                - Trezor
+            </section>
+
+            <section data-markdown>
+                # Links
+
+                - https://chocolatey.org/
+                - https://github.com/majkinetor/au
+                - https://github.com/chocolatey/chocolatey-coreteampackages
+            </section>
+
+            <section>
+                <h1>Hvala vam</h1>
+                <img src='images/end.gif'> </img>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+
+    <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                // Display controls in the bottom right corner
+                controls: false,
+                <!--slideNumber: true,-->
+
+                // Display a presentation progress bar
+                progress: true,
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    { src: 'plugin/zoom-js/zoom.js', async: true },
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+                ]
+            });
+        </script>
+</body>
+
+</html>
