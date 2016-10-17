@@ -368,10 +368,14 @@
                 <section>
 
                     <h2> Privatni repozitorijumi</h2>
-                    <p  data-markdown>
-                    - SMB share
-                    - Artifactory, Nexus
-                    - ProGet, MyGet
+                    <p data-markdown>
+                    - SMB share, simple server ili gallery
+                    - Simple servers
+                      - Nuget.Server, Chocolatey.Server
+                      - Artifactory, Nexus, TeamCity
+                      - ProGet (cinst proget), MyGet, JNuget
+
+                    https://chocolatey.org/docs/how-to-host-feed
                     </p>
                 </section>
 
@@ -427,7 +431,7 @@
                     - Parametri, custom logika
                     - Primeri: [dbeaver](https://github.com/majkinetor/au-packages/blob/master/dbeaver/tools/chocolateyInstall.ps1), [less](https://github.com/majkinetor/au-packages/tree/master/less/tools), [nexus-oss](https://github.com/majkinetor/au-packages/blob/master/nexus-oss/tools/chocolateyInstall.ps1)
                     - Alati: `cinst ussf insted`
-                    - Problemi: `cinst msiinv -version 1.3`
+                    - Problemi: `msiinv`
                     - [chocolatey-test-environment](https://github.com/chocolatey/chocolatey-test-environment)
                 </p>
 
@@ -499,6 +503,7 @@ update
                     - Nekad je teško napraviti downloader
                     - Mrežni problemi
                     - Ogromni installer-i
+                    - Rejected
                     </p>
                 </section>
 
